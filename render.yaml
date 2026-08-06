@@ -7,7 +7,7 @@ services:
     name: xe-api-gateway
     env: node
     plan: free
-    buildCommand: npm install && npx turbo run build --filter=@xe-recruiters/api-gateway
+    buildCommand: npm install && npx turbo run build --filter=@xe-recruiters/api-gateway...
     startCommand: node services/api-gateway/dist/main.js
     envVars:
       - key: NODE_VERSION
@@ -49,7 +49,7 @@ services:
     name: xe-auth-service
     env: node
     plan: free
-    buildCommand: npm install && npx prisma generate --schema=services/auth-service/prisma/schema.prisma && npx turbo run build --filter=@xe-recruiters/auth-service
+    buildCommand: npm install && npx turbo run build --filter=@xe-recruiters/auth-service...
     startCommand: node services/auth-service/dist/main.js
     envVars:
       - key: NODE_VERSION
@@ -70,7 +70,7 @@ services:
     name: xe-tenant-service
     env: node
     plan: free
-    buildCommand: npm install && npx prisma generate --schema=services/tenant-service/prisma/schema.prisma && npx turbo run build --filter=@xe-recruiters/tenant-service
+    buildCommand: npm install && npx turbo run build --filter=@xe-recruiters/tenant-service...
     startCommand: node services/tenant-service/dist/main.js
     envVars:
       - key: NODE_VERSION
@@ -87,7 +87,7 @@ services:
     name: xe-user-service
     env: node
     plan: free
-    buildCommand: npm install && npx prisma generate --schema=services/user-service/prisma/schema.prisma && npx turbo run build --filter=@xe-recruiters/user-service
+    buildCommand: npm install && npx turbo run build --filter=@xe-recruiters/user-service...
     startCommand: node services/user-service/dist/main.js
     envVars:
       - key: NODE_VERSION
@@ -104,7 +104,7 @@ services:
     name: xe-exam-service
     env: node
     plan: free
-    buildCommand: npm install && npx prisma generate --schema=services/exam-service/prisma/schema.prisma && npx turbo run build --filter=@xe-recruiters/exam-service
+    buildCommand: npm install && npx turbo run build --filter=@xe-recruiters/exam-service...
     startCommand: node services/exam-service/dist/main.js
     envVars:
       - key: NODE_VERSION
@@ -129,7 +129,7 @@ services:
     name: xe-question-bank-service
     env: node
     plan: free
-    buildCommand: npm install && npx prisma generate --schema=services/question-bank-service/prisma/schema.prisma && npx turbo run build --filter=@xe-recruiters/question-bank-service
+    buildCommand: npm install && npx turbo run build --filter=@xe-recruiters/question-bank-service...
     startCommand: node services/question-bank-service/dist/main.js
     envVars:
       - key: NODE_VERSION

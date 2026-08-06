@@ -19,6 +19,8 @@
     "docker:reset": "docker-compose down -v && docker-compose up -d"
   },
   "devDependencies": {
+    "@nestjs/cli": "^10.4.0",
+    "prisma": "^6.2.0",
     "turbo": "^2.5.0",
     "typescript": "^5.7.0"
   },
