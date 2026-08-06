@@ -49,12 +49,13 @@ async function bootstrap() {
     }
   };
 
-  // Mount proxies directly on Express using pathFilter without Express path-stripping
+  // Dual-path proxy rules: supports both /api/v1/... and short /... routes
   expressApp.use(
     createProxyMiddleware({
       target: authTarget,
       changeOrigin: true,
-      pathFilter: (path) => path.startsWith('/api/v1/auth'),
+      pathFilter: (path) => path.startsWith('/api/v1/auth') || path.startsWith('/auth'),
+      pathRewrite: (path) => (path.startsWith('/api/v1') ? path : `/api/v1${path}`),
       on: { error: handleError('Auth Service') },
     }),
   );
@@ -63,7 +64,8 @@ async function bootstrap() {
     createProxyMiddleware({
       target: tenantTarget,
       changeOrigin: true,
-      pathFilter: (path) => path.startsWith('/api/v1/tenants'),
+      pathFilter: (path) => path.startsWith('/api/v1/tenants') || path.startsWith('/tenants'),
+      pathRewrite: (path) => (path.startsWith('/api/v1') ? path : `/api/v1${path}`),
       on: { error: handleError('Tenant Service') },
     }),
   );
@@ -72,7 +74,8 @@ async function bootstrap() {
     createProxyMiddleware({
       target: userTarget,
       changeOrigin: true,
-      pathFilter: (path) => path.startsWith('/api/v1/users'),
+      pathFilter: (path) => path.startsWith('/api/v1/users') || path.startsWith('/users'),
+      pathRewrite: (path) => (path.startsWith('/api/v1') ? path : `/api/v1${path}`),
       on: { error: handleError('User Service') },
     }),
   );
@@ -81,7 +84,12 @@ async function bootstrap() {
     createProxyMiddleware({
       target: examTarget,
       changeOrigin: true,
-      pathFilter: (path) => path.startsWith('/api/v1/exams') || path.startsWith('/api/v1/code-execution'),
+      pathFilter: (path) =>
+        path.startsWith('/api/v1/exams') ||
+        path.startsWith('/exams') ||
+        path.startsWith('/api/v1/code-execution') ||
+        path.startsWith('/code-execution'),
+      pathRewrite: (path) => (path.startsWith('/api/v1') ? path : `/api/v1${path}`),
       on: { error: handleError('Exam Service') },
     }),
   );
@@ -90,7 +98,8 @@ async function bootstrap() {
     createProxyMiddleware({
       target: questionTarget,
       changeOrigin: true,
-      pathFilter: (path) => path.startsWith('/api/v1/questions'),
+      pathFilter: (path) => path.startsWith('/api/v1/questions') || path.startsWith('/questions'),
+      pathRewrite: (path) => (path.startsWith('/api/v1') ? path : `/api/v1${path}`),
       on: { error: handleError('Question Bank Service') },
     }),
   );

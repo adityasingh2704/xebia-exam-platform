@@ -1,6 +1,10 @@
 import axios from 'axios';
 
-const BASE_API_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api/v1').replace(/\/$/, '');
+let rawUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api/v1').trim().replace(/\/$/, '');
+if (!rawUrl.includes('/api/v1')) {
+  rawUrl = `${rawUrl}/api/v1`;
+}
+const BASE_API_URL = rawUrl;
 
 const AUTH_URL     = BASE_API_URL;
 const TENANT_URL   = BASE_API_URL;
