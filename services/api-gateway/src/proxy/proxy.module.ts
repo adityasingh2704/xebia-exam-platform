@@ -3,7 +3,7 @@ import { createProxyMiddleware } from 'http-proxy-middleware';
 
 /**
  * ProxyModule routes requests to the appropriate microservice.
- * Reads service URLs from environment variables for cloud deployment support.
+ * Uses pathFilter and wildcard forRoutes to preserve exact URL path prefixes.
  */
 @Module({})
 export class ProxyModule implements NestModule {
@@ -20,65 +20,40 @@ export class ProxyModule implements NestModule {
     const examTarget = this.formatTarget('EXAM_SERVICE_URL', 'http://localhost:3004');
     const questionTarget = this.formatTarget('QUESTION_SERVICE_URL', 'http://localhost:3005');
 
-    // Auth Service
     consumer
-      .apply(createProxyMiddleware({
-        target: authTarget,
-        changeOrigin: true,
-        on: { error: this.handleError('/api/v1/auth') },
-      }))
-      .forRoutes({ path: '/api/v1/auth', method: RequestMethod.ALL },
-                 { path: '/api/v1/auth/*path', method: RequestMethod.ALL });
-
-    // Tenant Service
-    consumer
-      .apply(createProxyMiddleware({
-        target: tenantTarget,
-        changeOrigin: true,
-        on: { error: this.handleError('/api/v1/tenants') },
-      }))
-      .forRoutes({ path: '/api/v1/tenants', method: RequestMethod.ALL },
-                 { path: '/api/v1/tenants/*path', method: RequestMethod.ALL });
-
-    // User Service
-    consumer
-      .apply(createProxyMiddleware({
-        target: userTarget,
-        changeOrigin: true,
-        on: { error: this.handleError('/api/v1/users') },
-      }))
-      .forRoutes({ path: '/api/v1/users', method: RequestMethod.ALL },
-                 { path: '/api/v1/users/*path', method: RequestMethod.ALL });
-
-    // Exam Service
-    consumer
-      .apply(createProxyMiddleware({
-        target: examTarget,
-        changeOrigin: true,
-        on: { error: this.handleError('/api/v1/exams') },
-      }))
-      .forRoutes({ path: '/api/v1/exams', method: RequestMethod.ALL },
-                 { path: '/api/v1/exams/*path', method: RequestMethod.ALL });
-
-    // Code Execution (also exam service)
-    consumer
-      .apply(createProxyMiddleware({
-        target: examTarget,
-        changeOrigin: true,
-        on: { error: this.handleError('/api/v1/code-execution') },
-      }))
-      .forRoutes({ path: '/api/v1/code-execution', method: RequestMethod.ALL },
-                 { path: '/api/v1/code-execution/*path', method: RequestMethod.ALL });
-
-    // Question Bank Service
-    consumer
-      .apply(createProxyMiddleware({
-        target: questionTarget,
-        changeOrigin: true,
-        on: { error: this.handleError('/api/v1/questions') },
-      }))
-      .forRoutes({ path: '/api/v1/questions', method: RequestMethod.ALL },
-                 { path: '/api/v1/questions/*path', method: RequestMethod.ALL });
+      .apply(
+        createProxyMiddleware({
+          target: authTarget,
+          changeOrigin: true,
+          pathFilter: (path) => path.startsWith('/api/v1/auth'),
+          on: { error: this.handleError('/api/v1/auth') },
+        }),
+        createProxyMiddleware({
+          target: tenantTarget,
+          changeOrigin: true,
+          pathFilter: (path) => path.startsWith('/api/v1/tenants'),
+          on: { error: this.handleError('/api/v1/tenants') },
+        }),
+        createProxyMiddleware({
+          target: userTarget,
+          changeOrigin: true,
+          pathFilter: (path) => path.startsWith('/api/v1/users'),
+          on: { error: this.handleError('/api/v1/users') },
+        }),
+        createProxyMiddleware({
+          target: examTarget,
+          changeOrigin: true,
+          pathFilter: (path) => path.startsWith('/api/v1/exams') || path.startsWith('/api/v1/code-execution'),
+          on: { error: this.handleError('/api/v1/exams') },
+        }),
+        createProxyMiddleware({
+          target: questionTarget,
+          changeOrigin: true,
+          pathFilter: (path) => path.startsWith('/api/v1/questions'),
+          on: { error: this.handleError('/api/v1/questions') },
+        }),
+      )
+      .forRoutes({ path: '*', method: RequestMethod.ALL });
   }
 
   private handleError(servicePath: string) {
