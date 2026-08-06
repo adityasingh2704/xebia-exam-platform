@@ -14,35 +14,19 @@ services:
         value: "20.18.0"
       - key: NODE_ENV
         value: production
-      - key: PORT
-        value: 3006
       - key: JWT_SECRET
         sync: false
+      # ── Public HTTPS URLs for all microservices (free plan has no private networking)
       - key: AUTH_SERVICE_URL
-        fromService:
-          name: xe-auth-service
-          type: web
-          property: hostport
+        value: https://xe-auth-service.onrender.com
       - key: TENANT_SERVICE_URL
-        fromService:
-          name: xe-tenant-service
-          type: web
-          property: hostport
+        value: https://xe-tenant-service.onrender.com
       - key: USER_SERVICE_URL
-        fromService:
-          name: xe-user-service
-          type: web
-          property: hostport
+        value: https://xe-user-service.onrender.com
       - key: EXAM_SERVICE_URL
-        fromService:
-          name: xe-exam-service
-          type: web
-          property: hostport
+        value: https://xe-exam-service.onrender.com
       - key: QUESTION_SERVICE_URL
-        fromService:
-          name: xe-question-bank-service
-          type: web
-          property: hostport
+        value: https://xe-question-bank-service.onrender.com
 
   # ── Auth Service ─────────────────────────────────────────
   - type: web
@@ -56,9 +40,11 @@ services:
         value: "20.18.0"
       - key: NODE_ENV
         value: production
-      - key: PORT
-        value: 3001
       - key: AUTH_DATABASE_URL
+        sync: false
+      - key: USER_DATABASE_URL
+        sync: false
+      - key: TENANT_DATABASE_URL
         sync: false
       - key: JWT_SECRET
         sync: false
@@ -77,8 +63,6 @@ services:
         value: "20.18.0"
       - key: NODE_ENV
         value: production
-      - key: PORT
-        value: 3002
       - key: TENANT_DATABASE_URL
         sync: false
 
@@ -94,8 +78,6 @@ services:
         value: "20.18.0"
       - key: NODE_ENV
         value: production
-      - key: PORT
-        value: 3003
       - key: USER_DATABASE_URL
         sync: false
 
@@ -111,15 +93,7 @@ services:
         value: "20.18.0"
       - key: NODE_ENV
         value: production
-      - key: PORT
-        value: 3004
       - key: EXAM_DATABASE_URL
-        sync: false
-      - key: REDIS_HOST
-        sync: false
-      - key: REDIS_PORT
-        sync: false
-      - key: REDIS_PASSWORD
         sync: false
       - key: JUDGE0_API_URL
         value: https://judge0-ce.p.rapidapi.com
@@ -136,7 +110,5 @@ services:
         value: "20.18.0"
       - key: NODE_ENV
         value: production
-      - key: PORT
-        value: 3005
       - key: QUESTION_DATABASE_URL
         sync: false
