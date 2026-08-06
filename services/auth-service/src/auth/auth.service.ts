@@ -705,13 +705,14 @@ export class AuthService {
   private getUserPrismaClient() {
     const userClientPath = this.getClientPath('user-service', 'user');
     const { PrismaClient } = require(userClientPath);
+    const dbUrl =
+      this.config.get('USER_DATABASE_URL') ||
+      this.config.get('AUTH_DATABASE_URL') ||
+      this.config.get('DATABASE_URL');
     return new PrismaClient({
       datasources: {
         db: {
-          url: this.config.get(
-            'USER_DATABASE_URL',
-            'postgresql://xe_admin:xe_secret_2024@localhost:5432/xe_user',
-          ),
+          url: dbUrl,
         },
       },
       log: [],
@@ -721,13 +722,14 @@ export class AuthService {
   private getTenantPrismaClient() {
     const tenantClientPath = this.getClientPath('tenant-service', 'tenant');
     const { PrismaClient } = require(tenantClientPath);
+    const dbUrl =
+      this.config.get('TENANT_DATABASE_URL') ||
+      this.config.get('AUTH_DATABASE_URL') ||
+      this.config.get('DATABASE_URL');
     return new PrismaClient({
       datasources: {
         db: {
-          url: this.config.get(
-            'TENANT_DATABASE_URL',
-            'postgresql://xe_admin:xe_secret_2024@localhost:5432/xe_tenant',
-          ),
+          url: dbUrl,
         },
       },
       log: [],
