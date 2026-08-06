@@ -129,21 +129,20 @@ export default function CandidatesPage() {
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-headline-xl font-bold text-text-primary">Candidates</h1>
           <p className="text-body-sm text-text-muted mt-1">
             Manage assessment candidates, invitations, and compliance scores.
           </p>
         </div>
-        <div className="flex items-center gap-3">
-          <label className="btn-secondary cursor-pointer">
+        <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+          <label className="btn-secondary cursor-pointer text-xs sm:text-sm">
             <span className="material-symbols-outlined text-lg">upload_file</span>
             Import List
             <input type="file" className="hidden" accept=".csv" onChange={async (e) => {
               const file = e.target.files?.[0];
               if (!file) return;
-              addToast('Parsing CSV...', 'info');
 
               const reader = new FileReader();
               reader.onload = async (evt) => {
@@ -174,7 +173,6 @@ export default function CandidatesPage() {
                       email: cols[emailIdx],
                       firstName: firstIdx !== -1 && cols[firstIdx] ? cols[firstIdx] : 'Imported',
                       lastName: lastIdx !== -1 && cols[lastIdx] ? cols[lastIdx] : 'Candidate',
-                      role: 'CANDIDATE',
                     });
                   }
 
@@ -198,17 +196,33 @@ export default function CandidatesPage() {
                     // ignore
                   }
 
-                  await userApi.import(tenantId, candidatesToImport);
-                  addToast(`Successfully imported ${candidatesToImport.length} candidates!`, 'success');
+                  addToast(`Importing ${candidatesToImport.length} candidates...`, 'info');
+
+                  let createdCount = 0;
+                  for (const candidateData of candidatesToImport) {
+                    try {
+                      await userApi.create({
+                        ...candidateData,
+                        password: 'Candidate@123',
+                        tenantId: tenantId !== 'platform-global' ? tenantId : undefined,
+                        role: 'CANDIDATE'
+                      });
+                      createdCount++;
+                    } catch {
+                      // ignore duplicates
+                    }
+                  }
+
+                  addToast(`Successfully imported ${createdCount} candidates!`, 'success');
                   fetchCandidates();
-                } catch (err: any) {
-                  addToast(err.response?.data?.message || 'Failed to import candidates', 'error');
+                } catch {
+                  addToast('Failed to import CSV file', 'error');
                 }
               };
               reader.readAsText(file);
             }} />
           </label>
-          <button className="btn-cta" onClick={() => setAddOpen(true)}>
+          <button className="btn-cta text-xs sm:text-sm" onClick={() => setAddOpen(true)}>
             <span className="material-symbols-outlined text-lg">person_add</span>
             Add Candidate
           </button>
@@ -217,11 +231,11 @@ export default function CandidatesPage() {
 
       {/* Stats Grid */}
       {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           {[1, 2, 3, 4].map((i) => <StatCardSkeleton key={i} />)}
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           {[
             { label: 'Total Candidates', value: candidates.length.toString(), icon: 'school', color: 'primary' },
             { label: 'Active', value: activeCount.toString(), icon: 'play_circle', color: 'emerald' },

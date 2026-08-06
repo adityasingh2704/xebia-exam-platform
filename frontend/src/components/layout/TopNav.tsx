@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuthStore } from '@/stores/authStore';
+import { useSidebarStore } from '@/stores/sidebarStore';
 import { useToastStore } from '@/components/ui/Toast';
 import { useTheme } from '@/components/theme/ThemeProvider';
 import { examApi, userApi } from '@/lib/api';
@@ -268,12 +269,22 @@ export default function TopNav() {
 
   return (
     <>
-      <header className="h-14 flex items-center justify-between px-6 border-b shrink-0 bg-surface-card border-border transition-colors duration-200">
-        {/* Left: Breadcrumb */}
-        <div className="flex items-center gap-2">
-          <span className="text-text-muted text-sm">Home</span>
-          <span className="text-text-muted text-sm">/</span>
-          <span className="text-text-primary text-sm font-medium">{getPageTitle()}</span>
+      <header className="h-14 flex items-center justify-between px-4 md:px-6 border-b shrink-0 bg-surface-card border-border transition-colors duration-200">
+        {/* Left: Mobile Menu Toggle & Breadcrumb */}
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => useSidebarStore.getState().toggle()}
+            className="md:hidden p-1.5 rounded-xl hover:bg-surface-page transition-colors text-text-secondary hover:text-text-primary flex items-center justify-center"
+            title="Open Menu"
+            aria-label="Open Navigation Menu"
+          >
+            <span className="material-symbols-outlined text-2xl">menu</span>
+          </button>
+          <div className="flex items-center gap-2">
+            <span className="text-text-muted text-sm hidden sm:inline">Home</span>
+            <span className="text-text-muted text-sm hidden sm:inline">/</span>
+            <span className="text-text-primary text-sm font-medium">{getPageTitle()}</span>
+          </div>
         </div>
 
         {/* Right: Actions */}

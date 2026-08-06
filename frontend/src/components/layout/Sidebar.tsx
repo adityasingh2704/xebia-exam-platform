@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { clsx } from 'clsx';
 import { useAuthStore } from '@/stores/authStore';
+import { useSidebarStore } from '@/stores/sidebarStore';
 
 interface NavItem {
   label: string;
@@ -70,6 +71,7 @@ export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const { user, logout } = useAuthStore();
+  const { isOpen, close } = useSidebarStore();
 
   const userRole = user?.role || 'TEACHER';
   const userName = user ? `${user.firstName} ${user.lastName}`.trim() : 'Guest User';
@@ -84,6 +86,7 @@ export default function Sidebar() {
   };
 
   const handleLogout = async () => {
+    close();
     window.location.href = '/login';
     await logout();
   };
@@ -99,21 +102,31 @@ export default function Sidebar() {
     }))
     .filter((group) => group.items.length > 0);
 
-  return (
+  const sidebarContent = (
     <aside
-      className="w-[220px] min-w-[220px] flex flex-col h-full"
+      className="w-[240px] md:w-[220px] flex flex-col h-full shadow-2xl md:shadow-none"
       style={{ background: '#6C1D5F' }}
     >
       {/* Logo Header */}
       <div
-        className="px-5 py-4 flex items-center gap-3 min-h-[64px]"
+        className="px-5 py-4 flex items-center justify-between gap-3 min-h-[64px]"
         style={{ background: '#4A1E47', borderBottom: '1px solid rgba(255,255,255,0.10)' }}
       >
-        <img src="/Logo-White.png" alt="Xe-Recruits Logo" className="h-8 w-auto flex-shrink-0" />
-        <div className="min-w-0">
-          <h1 className="text-white font-bold text-sm leading-tight truncate">Xe-Recruits</h1>
-          <p className="text-white/50 text-[10px]">by Xebia</p>
+        <div className="flex items-center gap-3 min-w-0">
+          <img src="/Logo-White.png" alt="Xe-Recruits Logo" className="h-8 w-auto flex-shrink-0" />
+          <div className="min-w-0">
+            <h1 className="text-white font-bold text-sm leading-tight truncate">Xe-Recruits</h1>
+            <p className="text-white/50 text-[10px]">by Xebia</p>
+          </div>
         </div>
+        {/* Mobile close button */}
+        <button
+          onClick={close}
+          className="md:hidden text-white/70 hover:text-white p-1 rounded-lg transition-colors"
+          title="Close Navigation"
+        >
+          <span className="material-symbols-outlined text-xl">close</span>
+        </button>
       </div>
 
       {/* Navigation */}
@@ -126,6 +139,7 @@ export default function Sidebar() {
                 <Link
                   key={item.href}
                   href={item.href}
+                  onClick={close}
                   className={clsx(
                     isActive(item.href) ? 'sidebar-item-active' : 'sidebar-item',
                   )}
@@ -144,7 +158,6 @@ export default function Sidebar() {
         className="p-4 mt-auto"
         style={{ borderTop: '1px solid rgba(255,255,255,0.10)' }}
       >
-
         {/* User info */}
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-full bg-cta/20 flex items-center justify-center flex-shrink-0">
@@ -166,5 +179,29 @@ export default function Sidebar() {
         </div>
       </div>
     </aside>
+  );
+
+  return (
+    <>
+      {/* Desktop Permanent Sidebar */}
+      <div className="hidden md:flex h-full flex-shrink-0">
+        {sidebarContent}
+      </div>
+
+      {/* Mobile Drawer Overlay & Backdrop */}
+      {isOpen && (
+        <div className="fixed inset-0 z-50 flex md:hidden animate-fade-in">
+          {/* Backdrop Blur */}
+          <div
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
+            onClick={close}
+          />
+          {/* Sliding Sidebar */}
+          <div className="relative z-10 h-full animate-slide-right">
+            {sidebarContent}
+          </div>
+        </div>
+      )}
+    </>
   );
 }

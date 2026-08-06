@@ -43,7 +43,7 @@ export default function DashboardLayout({
         <TopNav />
 
         {/* Page Content */}
-        <main className="flex-1 overflow-auto p-6">
+        <main className="flex-1 overflow-auto p-4 sm:p-6">
           <div className="animate-fade-in">
             {children}
           </div>
