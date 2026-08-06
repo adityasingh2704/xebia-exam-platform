@@ -108,7 +108,7 @@ export default function DashboardPage() {
     };
 
     loadDashboard();
-  }, [currentRole]);
+  }, [currentRole, user?.id, user?.tenantId]);
 
   const formatDate = (dateStr: string) => {
     try {
