@@ -30,7 +30,10 @@
   },
   "packageManager": "npm@10.0.0",
   "dependencies": {
+    "@nestjs/platform-socket.io": "^10.4.0",
+    "@nestjs/websockets": "^10.4.0",
     "bcryptjs": "^3.0.3",
-    "mongodb": "^7.5.0"
+    "mongodb": "^7.5.0",
+    "socket.io": "^4.7.5"
   }
 }
