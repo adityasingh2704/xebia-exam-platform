@@ -14,14 +14,16 @@ async function bootstrap() {
     origin: (origin, callback) => {
       // Allow requests with no origin (mobile, curl, Postman)
       if (!origin) return callback(null, true);
-      // Allow any localhost origin regardless of port
-      if (origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:')) {
+      if (
+        origin.startsWith('http://localhost:') ||
+        origin.startsWith('http://127.0.0.1:') ||
+        origin.endsWith('.vercel.app')
+      ) {
         return callback(null, true);
       }
-      // Allow configured frontend URL
       const allowed = process.env.FRONTEND_URL;
       if (allowed && origin === allowed) return callback(null, true);
-      callback(new Error(`CORS: Origin ${origin} not allowed`));
+      callback(null, true);
     },
     credentials: true,
   });
