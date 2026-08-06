@@ -19,7 +19,7 @@ async function bootstrap() {
     .build();
   SwaggerModule.setup('docs', app, SwaggerModule.createDocument(app, config));
 
-  const port = process.env.EXAM_SERVICE_PORT || 3004;
+  const port = process.env.PORT || process.env.EXAM_SERVICE_PORT || 3004;
   await app.listen(port);
   console.log(`📝 Exam Service running on port ${port}`);
 }

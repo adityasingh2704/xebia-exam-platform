@@ -19,7 +19,7 @@ async function bootstrap() {
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Tenant-Id'],
   });
 
-  const port = process.env.API_GATEWAY_PORT || 3006;
+  const port = process.env.PORT || process.env.API_GATEWAY_PORT || 3006;
   await app.listen(port);
   console.log(`🚀 API Gateway running on port ${port}`);
 }

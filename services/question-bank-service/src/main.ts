@@ -19,7 +19,7 @@ async function bootstrap() {
     .build();
   SwaggerModule.setup('docs', app, SwaggerModule.createDocument(app, config));
 
-  const port = process.env.QUESTION_SERVICE_PORT || 3005;
+  const port = process.env.PORT || process.env.QUESTION_SERVICE_PORT || 3005;
   await app.listen(port);
   console.log(`❓ Question Bank Service running on port ${port}`);
 }
