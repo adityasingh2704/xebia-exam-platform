@@ -1,0 +1,118 @@
+// Xe-Recruiters — User Service Prisma Schema
+// This service owns: users, roles, invitations
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/@prisma/client/user"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("USER_DATABASE_URL")
+}
+
+model User {
+  id                    String    @id @default(auto()) @map("_id") @db.ObjectId
+  tenantId              String    @map("tenant_id")
+  email                 String
+  passwordHash          String    @map("password_hash")
+  firstName             String    @map("first_name")
+  lastName              String    @map("last_name")
+  role                  UserRole  @default(CANDIDATE)
+  isActive              Boolean   @default(true) @map("is_active")
+  requiresPasswordReset Boolean   @default(true) @map("requires_password_reset")
+  avatarUrl             String?   @map("avatar_url")
+  phone                 String?
+  lastLoginAt           DateTime? @map("last_login_at")
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
+
+  @@unique([email, tenantId])
+  @@index([tenantId])
+  @@index([email])
+  @@index([role])
+  @@map("users")
+}
+
+model Invitation {
+  id         String           @id @default(auto()) @map("_id") @db.ObjectId
+  tenantId   String           @map("tenant_id")
+  email      String
+  firstName  String           @map("first_name")
+  lastName   String           @map("last_name")
+  role       UserRole         @default(CANDIDATE)
+  token      String           @unique
+  status     InvitationStatus @default(PENDING)
+  expiresAt  DateTime         @map("expires_at")
+  acceptedAt DateTime?        @map("accepted_at")
+  invitedBy  String           @map("invited_by")
+  createdAt  DateTime         @default(now()) @map("created_at")
+
+  @@index([tenantId, email])
+  @@map("invitations")
+}
+
+model CandidateGroup {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  tenantId  String   @map("tenant_id")
+  name      String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  members CandidateGroupMember[]
+
+  @@unique([tenantId, name])
+  @@map("candidate_groups")
+}
+
+model CandidateGroupMember {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  groupId   String @map("group_id") @db.ObjectId
+  userId    String @map("user_id")
+
+  group CandidateGroup @relation(fields: [groupId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([groupId, userId])
+  @@map("candidate_group_members")
+}
+
+enum UserRole {
+  PLATFORM_ADMIN
+  TENANT_ADMIN
+  EXAM_MANAGER
+  TEACHER
+  PROCTOR
+  CANDIDATE
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  EXPIRED
+  CANCELLED
+}
+
+model DsarRequest {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @map("user_id")
+  tenantId  String   @map("tenant_id")
+  type      DsarType @default(EXPORT)
+  status    DsarStatus @default(PENDING)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([tenantId])
+  @@index([userId])
+  @@map("dsar_requests")
+}
+
+enum DsarType {
+  EXPORT
+  DELETION
+}
+
+enum DsarStatus {
+  PENDING
+  COMPLETED
+  REJECTED
+}

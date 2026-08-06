@@ -1,0 +1,130 @@
+# Render Infrastructure-as-Code Blueprint for Xe-Recruiters Microservices
+version: "1"
+
+services:
+  # ── API Gateway ──────────────────────────────────────────
+  - type: web
+    name: xe-api-gateway
+    env: node
+    plan: starter
+    buildCommand: npm install && npm run build
+    startCommand: node services/api-gateway/dist/main.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3006
+      - key: JWT_SECRET
+        sync: false
+      - key: AUTH_SERVICE_URL
+        fromService:
+          name: xe-auth-service
+          type: web
+          property: hostport
+      - key: TENANT_SERVICE_URL
+        fromService:
+          name: xe-tenant-service
+          type: web
+          property: hostport
+      - key: USER_SERVICE_URL
+        fromService:
+          name: xe-user-service
+          type: web
+          property: hostport
+      - key: EXAM_SERVICE_URL
+        fromService:
+          name: xe-exam-service
+          type: web
+          property: hostport
+      - key: QUESTION_SERVICE_URL
+        fromService:
+          name: xe-question-bank-service
+          type: web
+          property: hostport
+
+  # ── Auth Service ─────────────────────────────────────────
+  - type: web
+    name: xe-auth-service
+    env: node
+    plan: starter
+    buildCommand: npm install && npm run build
+    startCommand: node services/auth-service/dist/main.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3001
+      - key: AUTH_DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_REFRESH_SECRET
+        sync: false
+
+  # ── Tenant Service ───────────────────────────────────────
+  - type: web
+    name: xe-tenant-service
+    env: node
+    plan: starter
+    buildCommand: npm install && npm run build
+    startCommand: node services/tenant-service/dist/main.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3002
+      - key: TENANT_DATABASE_URL
+        sync: false
+
+  # ── User Service ─────────────────────────────────────────
+  - type: web
+    name: xe-user-service
+    env: node
+    plan: starter
+    buildCommand: npm install && npm run build
+    startCommand: node services/user-service/dist/main.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3003
+      - key: USER_DATABASE_URL
+        sync: false
+
+  # ── Exam Service ─────────────────────────────────────────
+  - type: web
+    name: xe-exam-service
+    env: node
+    plan: starter
+    buildCommand: npm install && npm run build
+    startCommand: node services/exam-service/dist/main.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3004
+      - key: EXAM_DATABASE_URL
+        sync: false
+      - key: REDIS_HOST
+        sync: false
+      - key: REDIS_PORT
+        sync: false
+      - key: REDIS_PASSWORD
+        sync: false
+      - key: JUDGE0_API_URL
+        value: https://judge0-ce.p.rapidapi.com
+
+  # ── Question Bank Service ────────────────────────────────
+  - type: web
+    name: xe-question-bank-service
+    env: node
+    plan: starter
+    buildCommand: npm install && npm run build
+    startCommand: node services/question-bank-service/dist/main.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3005
+      - key: QUESTION_DATABASE_URL
+        sync: false

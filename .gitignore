@@ -1,0 +1,23 @@
+# Node dependencies
+node_modules/
+**/node_modules/
+.pnpm-store/
+
+# Build outputs
+dist/
+**/dist/
+.next/
+**/.next/
+out/
+build/
+*.tsbuildinfo
+
+# Environment variables
+.env
+.env*
+!.env.example
+
+# Database & Storage
+mongodb_data/
+**/mongodb_data/
+.turbo/

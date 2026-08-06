@@ -1,0 +1,363 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ═══════════════════════════════════════════
+   Xe-Recruiters — Centralized Design Tokens & Theme System
+   Brand: Xebia Plum (#6C1D5F), CTA Orange (#FF6200), Emerald (#01AC9F)
+   ═══════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Alex+Brush&family=Pinyon+Script&family=Great+Vibes&display=swap');
+
+:root {
+  /* Surface tokens (Light Mode) */
+  --surface-page: #F7F8FC;
+  --surface-card: #FFFFFF;
+  --surface-container: #EFEDED;
+  --surface-container-low: #F5F3F3;
+  --surface-container-high: #EAE8E7;
+  --surface-tint: #DADCEA;
+  --surface-dim: #DBDAD9;
+
+  /* Border tokens */
+  --border-color: #DEDEDE;
+  --border-subtle: rgba(0, 0, 0, 0.08);
+
+  /* Typography tokens */
+  --text-primary: #1B1C1C;
+  --text-secondary: #51434C;
+  --text-muted: #83727C;
+  --text-inverse: #FFFFFF;
+
+  /* Brand Palette (Xebia) */
+  --primary: #6C1D5F;
+  --primary-dark: #4A1E47;
+  --primary-bright: #84117C;
+  --primary-light: #F3E7F1;
+
+  --cta: #FF6200;
+  --cta-hover: #E55800;
+  --cta-light: #FFF0E6;
+
+  --emerald: #01AC9F;
+  --emerald-light: #E5F7F5;
+
+  /* Semantic status colors */
+  --info-bg: #F3E7F1;
+  --success-bg: #E5F7F5;
+  --warning-bg: #FFFBEB;
+  --danger-bg: #FEF2F2;
+
+  --danger-color: #B91C1C;
+  --warning-color: #B45309;
+
+  /* Shadows */
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-card-hover: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.dark {
+  /* Surface tokens (Dark Mode - Seamlessly merged with Sidebar Violet #6C1D5F / #4A1E47) */
+  --surface-page: #13091B;
+  --surface-card: #1F102B;
+  --surface-container: #2B173B;
+  --surface-container-low: #251433;
+  --surface-container-high: #381E4B;
+  --surface-tint: #562D75;
+  --surface-dim: #301A42;
+
+  /* Border tokens (Deep Violet Plum) */
+  --border-color: #482563;
+  --border-subtle: rgba(162, 59, 145, 0.25);
+
+  /* Typography tokens (Violet-tinged off-white for AAA contrast >15:1) */
+  --text-primary: #F8F3FA;
+  --text-secondary: #DBCEDF;
+  --text-muted: #AB96B0;
+  --text-inverse: #13091B;
+
+  /* Brand Palette (Vibrant Xebia Violet-Plum for Dark Surface Glow) */
+  --primary: #C748BA;
+  --primary-dark: #4A1E47;
+  --primary-bright: #E159D3;
+  --primary-light: #3F193C;
+
+  --cta: #FF6200;
+  --cta-hover: #FF751F;
+  --cta-light: #4A1C08;
+
+  --emerald: #02D3C4;
+  --emerald-light: #0F3A37;
+
+  /* Semantic status colors */
+  --info-bg: #3F193C;
+  --success-bg: #0F3A37;
+  --warning-bg: #473007;
+  --danger-bg: #4A121A;
+
+  --danger-color: #FF7B7B;
+  --warning-color: #FFC857;
+
+  /* Shadows with subtle violet ambient glow */
+  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.45), 0 0 15px rgba(108, 29, 95, 0.12);
+  --shadow-card-hover: 0 8px 28px rgba(0, 0, 0, 0.6), 0 0 20px rgba(199, 72, 186, 0.22);
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    @apply font-sans antialiased;
+    background-color: var(--surface-page);
+    color: var(--text-primary);
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  .material-symbols-outlined {
+    font-family: 'Material Symbols Outlined' !important;
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-feature-settings: 'liga';
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Focus styles */
+  *:focus-visible {
+    outline: 2px solid var(--cta);
+    outline-offset: 2px;
+  }
+
+  /* Scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(162, 59, 145, 0.25);
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(162, 59, 145, 0.55);
+  }
+
+  /* Input focus states */
+  input:focus,
+  select:focus,
+  textarea:focus {
+    @apply outline-none;
+    border-color: var(--primary) !important;
+    box-shadow: 0 0 0 3px rgba(162, 59, 145, 0.2) !important;
+  }
+}
+
+@layer components {
+
+  /* ── CTA Button ─────────────────────── */
+  .btn-cta {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-cta text-white font-semibold rounded-xl text-sm transition-all duration-200 ease-out hover:bg-cta-hover hover:shadow-cta hover:-translate-y-px active:bg-cta-active active:translate-y-0 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none;
+  }
+
+  .btn-cta-lg {
+    @apply btn-cta px-8 py-3 text-base;
+  }
+
+  /* ── Secondary Button ───────────────── */
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-transparent text-primary border-2 border-primary font-semibold rounded-xl text-sm transition-all duration-200 hover:bg-primary-light;
+  }
+
+  /* ── Ghost Button ───────────────────── */
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 bg-transparent text-text-secondary font-medium rounded-xl text-sm transition-all duration-200 hover:bg-surface-container;
+  }
+
+  /* ── Card ────────────────────────────── */
+  .card {
+    @apply bg-surface-card rounded-card shadow-card p-6 transition-all duration-200 hover:shadow-card-hover border border-border;
+  }
+
+  .card-flat {
+    @apply bg-surface-card rounded-card p-6 border border-border;
+  }
+
+  /* ── Badge ───────────────────────────── */
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+
+  .badge-primary {
+    @apply badge bg-info-bg text-primary;
+  }
+
+  .badge-success {
+    @apply badge bg-success-bg text-emerald;
+  }
+
+  .badge-warning {
+    @apply badge bg-warning-bg text-warning;
+  }
+
+  .badge-danger {
+    @apply badge bg-danger-bg text-danger;
+  }
+
+  .badge-cta {
+    @apply badge bg-cta-light text-cta;
+  }
+
+  /* ── Input ───────────────────────────── */
+  .input, .input-field {
+    @apply w-full px-3 py-2.5 border border-border bg-surface-card rounded-xl text-sm text-text-primary placeholder:text-text-muted transition-all duration-150;
+  }
+
+  .input-label {
+    @apply block text-label-sm text-text-primary mb-1.5;
+  }
+
+  /* ── Table ───────────────────────────── */
+  .table-header {
+    @apply bg-surface-page text-caption-xs text-text-muted uppercase tracking-wider border-b border-border;
+  }
+
+  .table-row {
+    @apply border-b border-border hover:bg-surface-container-low transition-colors duration-150;
+  }
+
+  .table-cell {
+    @apply px-4 py-3 text-body-sm text-text-primary;
+  }
+
+  /* ── Status Dots ─────────────────────── */
+  .status-dot {
+    @apply w-2 h-2 rounded-full;
+  }
+
+  .status-active {
+    @apply status-dot bg-emerald;
+  }
+
+  .status-disconnected {
+    @apply status-dot bg-amber-400;
+  }
+
+  .status-flagged {
+    @apply status-dot bg-red-500;
+  }
+
+  .status-submitted {
+    @apply status-dot bg-primary;
+  }
+
+  .status-terminated {
+    @apply status-dot bg-gray-500;
+  }
+
+  /* ── Sidebar ─────────────────────────── */
+  .sidebar-item {
+    @apply flex items-center gap-3 px-5 h-11 text-sm text-white/80 cursor-pointer transition-all duration-150 hover:bg-primary-dark hover:text-white;
+  }
+
+  .sidebar-item-active {
+    @apply sidebar-item bg-primary-dark text-white font-semibold border-r-4 border-cta;
+  }
+
+  .sidebar-group {
+    @apply text-[10px] font-semibold text-white/45 uppercase tracking-widest px-5 pt-2.5 pb-1;
+  }
+
+  .sidebar-divider {
+    @apply h-px bg-white/10 my-1.5;
+  }
+
+  /* ── Tab ──────────────────────────────── */
+  .tab {
+    @apply px-4 py-2.5 text-sm font-medium text-text-muted border-b-2 border-transparent cursor-pointer transition-all duration-150 hover:text-text-primary;
+  }
+
+  .tab-active {
+    @apply tab text-cta border-cta font-semibold;
+  }
+
+  /* ── Stat Card ───────────────────────── */
+  .stat-card {
+    @apply card flex flex-col gap-2;
+  }
+
+  .stat-value {
+    @apply text-headline-2xl font-bold text-text-primary;
+  }
+
+  .stat-label {
+    @apply text-caption-xs text-text-muted uppercase tracking-wider;
+  }
+
+  /* ── Progress Bar ────────────────────── */
+  .progress-bar {
+    @apply h-2 bg-surface-container rounded-full overflow-hidden;
+  }
+
+  .progress-fill {
+    @apply h-full bg-primary rounded-full transition-all duration-500;
+  }
+
+  .progress-fill-emerald {
+    @apply h-full bg-emerald rounded-full transition-all duration-500;
+  }
+
+  /* ── Step Indicator ──────────────────── */
+  .step-indicator {
+    @apply flex items-center gap-2;
+  }
+
+  .step-dot {
+    @apply w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold transition-all duration-200;
+  }
+
+  .step-dot-active {
+    @apply step-dot bg-cta text-white;
+  }
+
+  .step-dot-completed {
+    @apply step-dot bg-emerald text-white;
+  }
+
+  .step-dot-pending {
+    @apply step-dot bg-surface-container text-text-muted;
+  }
+
+  .step-line {
+    @apply flex-1 h-0.5 bg-surface-container;
+  }
+
+  .step-line-completed {
+    @apply step-line bg-emerald;
+  }
+}
+
+@layer utilities {
+  .text-gradient-primary {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary-bright;
+  }
+
+  .animate-in {
+    @apply animate-fade-in;
+  }
+}

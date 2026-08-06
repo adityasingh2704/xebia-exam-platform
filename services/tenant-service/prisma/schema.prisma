@@ -1,0 +1,129 @@
+// Xe-Recruiters — Tenant Service Prisma Schema
+// This service owns: tenants, tenant_branding, tenant_settings
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/@prisma/client/tenant"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("TENANT_DATABASE_URL")
+}
+
+model Tenant {
+  id          String       @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  slug        String       @unique
+  status      TenantStatus @default(ACTIVE)
+  plan        String       @default("enterprise")
+  maxSeats    Int          @default(500) @map("max_seats")
+  usedSeats   Int          @default(0) @map("used_seats")
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
+
+  branding    TenantBranding?
+  settings    TenantSettings?
+
+  @@map("tenants")
+}
+
+model TenantBranding {
+  id             String  @id @default(auto()) @map("_id") @db.ObjectId
+  tenantId       String  @unique @map("tenant_id") @db.ObjectId
+  logoUrl        String? @map("logo_url")
+  primaryColor   String  @default("#6C1D5F") @map("primary_color")
+  secondaryColor String  @default("#FF6200") @map("secondary_color")
+  companyName    String? @map("company_name")
+  faviconUrl     String? @map("favicon_url")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@map("tenant_branding")
+}
+
+model TenantSettings {
+  id                        String  @id @default(auto()) @map("_id") @db.ObjectId
+  tenantId                  String  @unique @map("tenant_id") @db.ObjectId
+  timezone                  String  @default("America/New_York")
+  locale                    String  @default("en-US")
+  dateFormat                String  @default("MM/DD/YYYY") @map("date_format")
+  enableEmailNotifications  Boolean @default(true) @map("enable_email_notifications")
+  enableInAppNotifications  Boolean @default(true) @map("enable_in_app_notifications")
+  enableProctoring          Boolean @default(true) @map("enable_proctoring")
+  maxConcurrentExams        Int     @default(10) @map("max_concurrent_exams")
+  defaultInstructions       String? @map("default_instructions")
+  notificationEmails        String? @map("notification_emails")
+  candidateDataRetentionDays Int     @default(730) @map("candidate_data_retention_days")
+  recordingsRetentionDays    Int     @default(90) @map("recordings_retention_days")
+  resultsRetentionDays       Int     @default(730) @map("results_retention_days")
+  auditLogsRetentionDays     Int     @default(730) @map("audit_logs_retention_days")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@map("tenant_settings")
+}
+
+enum TenantStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  TRIAL
+}
+
+model ApiKey {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  tenantId  String   @map("tenant_id")
+  name      String
+  key       String   @unique
+  status    String   @default("ACTIVE")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("api_keys")
+}
+
+model WebhookConfig {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  tenantId  String   @map("tenant_id")
+  url       String
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("webhook_configs")
+}
+
+model SecurityPolicy {
+  id                 String   @id @default(auto()) @map("_id") @db.ObjectId
+  tenantId           String   @unique @map("tenant_id")
+  passwordMinLength  Int      @default(8) @map("password_min_length")
+  requireSpecialChar Boolean  @default(true) @map("require_special_char")
+  lockoutThreshold   Int      @default(5) @map("lockout_threshold")
+  lockoutDuration    Int      @default(15) @map("lockout_duration")
+  firstLoginReset    Boolean  @default(true) @map("first_login_reset")
+
+  @@map("security_policies")
+}
+
+model SmtpConfig {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  tenantId  String   @unique @map("tenant_id")
+  host      String
+  port      Int      @default(587)
+  user      String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("smtp_configs")
+}
+
+model AuditLog {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  tenantId  String   @map("tenant_id")
+  actor     String
+  action    String
+  details   String
+  ipAddress String   @map("ip_address")
+  status    String   @default("SUCCESS")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("audit_logs")
+}

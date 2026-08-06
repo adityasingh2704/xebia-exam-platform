@@ -1,0 +1,158 @@
+# Docker Compose for Xe-Recruiters Development Environment
+# Provides: PostgreSQL, Redis, Kafka (KRaft), MinIO
+
+version: '3.8'
+
+services:
+  # ── PostgreSQL ──────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: xe-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: xe_admin
+      POSTGRES_PASSWORD: xe_secret_2024
+      POSTGRES_MULTIPLE_DATABASES: xe_auth,xe_tenant,xe_user,xe_exam,xe_question
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init-databases.sh:/docker-entrypoint-initdb.d/init-databases.sh
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U xe_admin"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── Redis ───────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: xe-redis
+    restart: unless-stopped
+    command: redis-server --requirepass xe_redis_2024
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "xe_redis_2024", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── Kafka (KRaft mode - no Zookeeper) ───────────────
+  kafka:
+    image: bitnamilegacy/kafka:3.7
+    container_name: xe-kafka
+    restart: unless-stopped
+    environment:
+      - KAFKA_CFG_NODE_ID=0
+      - KAFKA_CFG_PROCESS_ROLES=controller,broker
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@kafka:9093
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true
+    ports:
+      - "9092:9092"
+    volumes:
+      - kafka_data:/bitnami/kafka
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-topics.sh --bootstrap-server localhost:9092 --list"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # ── MinIO (S3-compatible storage) ───────────────────
+  minio:
+    image: minio/minio:latest
+    container_name: xe-minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: xe_minio_access
+      MINIO_ROOT_PASSWORD: xe_minio_secret_2024
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # ── Judge0 CE (Code Execution Engine) ───────────────
+  judge0-server:
+    image: judge0/judge0:latest
+    container_name: xe-judge0-server
+    restart: unless-stopped
+    volumes:
+      - ./judge0.conf:/judge0.conf:ro
+    ports:
+      - "2359:2358"
+    privileged: true
+    depends_on:
+      judge0-db:
+        condition: service_healthy
+      judge0-redis:
+        condition: service_healthy
+    logging:
+      driver: json-file
+      options:
+        max-size: 100M
+
+  judge0-worker:
+    image: judge0/judge0:latest
+    container_name: xe-judge0-worker
+    restart: unless-stopped
+    command: ["./scripts/workers"]
+    volumes:
+      - ./judge0.conf:/judge0.conf:ro
+    privileged: true
+    depends_on:
+      judge0-db:
+        condition: service_healthy
+      judge0-redis:
+        condition: service_healthy
+    logging:
+      driver: json-file
+      options:
+        max-size: 100M
+
+  judge0-db:
+    image: postgres:16.2
+    container_name: xe-judge0-db
+    restart: unless-stopped
+    env_file: judge0.conf
+    volumes:
+      - judge0_postgres_data:/var/lib/postgresql/data/
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U judge0"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  judge0-redis:
+    image: redis:7.2.4
+    container_name: xe-judge0-redis
+    restart: unless-stopped
+    command:
+      [
+        "bash", "-c",
+        'docker-entrypoint.sh --appendonly no --requirepass "$$REDIS_PASSWORD"'
+      ]
+    env_file: judge0.conf
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "xe_judge0_redis_2024", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+  redis_data:
+  kafka_data:
+  minio_data:
+  judge0_postgres_data:

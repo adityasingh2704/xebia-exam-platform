@@ -1,0 +1,102 @@
+// Xe-Recruiters — Question Bank Service Prisma Schema
+// Owns: questions, question_options, question_tags, categories
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/@prisma/client/question"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("QUESTION_DATABASE_URL")
+}
+
+model Question {
+  id                  String          @id @default(auto()) @map("_id") @db.ObjectId
+  tenantId            String          @map("tenant_id")
+  type                QuestionType
+  title               String
+  body                String          
+  explanation         String?         
+  difficulty          DifficultyLevel @default(MEDIUM)
+  points              Int             @default(1)
+  timeLimit           Int?            @map("time_limit") // in seconds
+  categoryId          String?         @map("category_id") @db.ObjectId
+  createdBy           String          @map("created_by")
+  isActive            Boolean         @default(true) @map("is_active")
+  usageCount          Int             @default(0) @map("usage_count")
+  createdAt           DateTime        @default(now()) @map("created_at")
+  updatedAt           DateTime        @updatedAt @map("updated_at")
+
+  // Programming specific fields
+  testCases           String?         @map("test_cases")
+  programmingLanguage String?         @map("programming_language")
+  solutionCode        String?         @map("solution_code")
+  templateCode        String?         @map("template_code")
+
+  options  QuestionOption[]
+  tags     QuestionTag[]
+  category Category?        @relation(fields: [categoryId], references: [id])
+
+  @@index([tenantId])
+  @@index([tenantId, type])
+  @@index([tenantId, difficulty])
+  @@index([categoryId])
+  @@map("questions")
+}
+
+model QuestionOption {
+  id         String  @id @default(auto()) @map("_id") @db.ObjectId
+  questionId String  @map("question_id") @db.ObjectId
+  text       String
+  isCorrect  Boolean @default(false) @map("is_correct")
+  order      Int
+
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([questionId])
+  @@map("question_options")
+}
+
+model QuestionTag {
+  id         String @id @default(auto()) @map("_id") @db.ObjectId
+  questionId String @map("question_id") @db.ObjectId
+  tag        String
+
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([questionId, tag])
+  @@index([tag])
+  @@map("question_tags")
+}
+
+model Category {
+  id          String  @id @default(auto()) @map("_id") @db.ObjectId
+  tenantId    String  @map("tenant_id")
+  name        String
+  description String?
+  parentId    String? @map("parent_id") @db.ObjectId
+
+  questions Category[] @relation("CategoryHierarchy")
+  parent    Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  questionsList Question[]
+
+  @@unique([tenantId, name])
+  @@map("categories")
+}
+
+enum QuestionType {
+  MCQ
+  MRQ
+  TRUE_FALSE
+  SHORT_ANSWER
+  ESSAY
+  PROGRAMMING
+}
+
+enum DifficultyLevel {
+  EASY
+  MEDIUM
+  HARD
+  EXPERT
+}
