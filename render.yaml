@@ -49,7 +49,7 @@ services:
     name: xe-auth-service
     env: node
     plan: free
-    buildCommand: npm install --include=dev && npx turbo run build --filter=@xe-recruiters/auth-service...
+    buildCommand: npm install --include=dev && npx prisma generate --schema=services/user-service/prisma/schema.prisma && npx prisma generate --schema=services/tenant-service/prisma/schema.prisma && npx turbo run build --filter=@xe-recruiters/auth-service...
     startCommand: node services/auth-service/dist/main.js
     envVars:
       - key: NODE_VERSION

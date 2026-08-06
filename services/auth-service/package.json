@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "nest start --watch",
-    "build": "npx prisma generate && npx nest build",
+    "build": "npx prisma generate && npx prisma generate --schema=../user-service/prisma/schema.prisma && npx prisma generate --schema=../tenant-service/prisma/schema.prisma && npx nest build",
     "start": "node dist/main.js",
     "test": "jest",
     "typecheck": "tsc --noEmit",

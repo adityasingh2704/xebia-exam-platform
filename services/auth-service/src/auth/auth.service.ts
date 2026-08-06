@@ -684,18 +684,22 @@ export class AuthService {
     const fs = require('fs');
     const possiblePaths = [
       path.resolve(process.cwd(), `services/${serviceName}/node_modules/@prisma/client/${clientSubfolder}`),
-      path.resolve(process.cwd(), `../${serviceName}/node_modules/@prisma/client/${clientSubfolder}`),
+      path.resolve(process.cwd(), `node_modules/@prisma/client/${clientSubfolder}`),
       path.resolve(__dirname, `../../../../services/${serviceName}/node_modules/@prisma/client/${clientSubfolder}`),
       path.resolve(__dirname, `../../../${serviceName}/node_modules/@prisma/client/${clientSubfolder}`),
       path.resolve(__dirname, `../../${serviceName}/node_modules/@prisma/client/${clientSubfolder}`),
-      `C:\\Users\\adity\\Desktop\\XEBIA 1\\services\\${serviceName}\\node_modules\\@prisma\\client\\${clientSubfolder}`,
+      path.resolve(__dirname, `../../../../node_modules/@prisma/client/${clientSubfolder}`),
     ];
     for (const p of possiblePaths) {
       if (fs.existsSync(p)) {
         return p;
       }
     }
-    return possiblePaths[0];
+    try {
+      return require.resolve(`@prisma/client/${clientSubfolder}`);
+    } catch {
+      return `@prisma/client/${clientSubfolder}`;
+    }
   }
 
   private getUserPrismaClient() {
