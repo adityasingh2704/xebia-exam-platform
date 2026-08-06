@@ -6,7 +6,7 @@ services:
   - type: web
     name: xe-api-gateway
     env: node
-    plan: starter
+    plan: free
     buildCommand: npm install && npm run build
     startCommand: node services/api-gateway/dist/main.js
     envVars:
@@ -46,7 +46,7 @@ services:
   - type: web
     name: xe-auth-service
     env: node
-    plan: starter
+    plan: free
     buildCommand: npm install && npm run build
     startCommand: node services/auth-service/dist/main.js
     envVars:
@@ -65,7 +65,7 @@ services:
   - type: web
     name: xe-tenant-service
     env: node
-    plan: starter
+    plan: free
     buildCommand: npm install && npm run build
     startCommand: node services/tenant-service/dist/main.js
     envVars:
@@ -80,7 +80,7 @@ services:
   - type: web
     name: xe-user-service
     env: node
-    plan: starter
+    plan: free
     buildCommand: npm install && npm run build
     startCommand: node services/user-service/dist/main.js
     envVars:
@@ -95,7 +95,7 @@ services:
   - type: web
     name: xe-exam-service
     env: node
-    plan: starter
+    plan: free
     buildCommand: npm install && npm run build
     startCommand: node services/exam-service/dist/main.js
     envVars:
@@ -118,7 +118,7 @@ services:
   - type: web
     name: xe-question-bank-service
     env: node
-    plan: starter
+    plan: free
     buildCommand: npm install && npm run build
     startCommand: node services/question-bank-service/dist/main.js
     envVars:
