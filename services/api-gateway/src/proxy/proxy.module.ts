@@ -3,15 +3,27 @@ import { createProxyMiddleware } from 'http-proxy-middleware';
 
 /**
  * ProxyModule routes requests to the appropriate microservice.
- * Each service route is proxied to its respective port.
+ * Reads service URLs from environment variables for cloud deployment support.
  */
 @Module({})
 export class ProxyModule implements NestModule {
+  private formatTarget(envVarName: string, fallback: string): string {
+    const val = process.env[envVarName];
+    if (!val) return fallback;
+    return val.startsWith('http://') || val.startsWith('https://') ? val : `http://${val}`;
+  }
+
   configure(consumer: MiddlewareConsumer) {
+    const authTarget = this.formatTarget('AUTH_SERVICE_URL', 'http://localhost:3001');
+    const tenantTarget = this.formatTarget('TENANT_SERVICE_URL', 'http://localhost:3002');
+    const userTarget = this.formatTarget('USER_SERVICE_URL', 'http://localhost:3003');
+    const examTarget = this.formatTarget('EXAM_SERVICE_URL', 'http://localhost:3004');
+    const questionTarget = this.formatTarget('QUESTION_SERVICE_URL', 'http://localhost:3005');
+
     // Auth Service
     consumer
       .apply(createProxyMiddleware({
-        target: 'http://localhost:3001',
+        target: authTarget,
         changeOrigin: true,
         on: { error: this.handleError('/api/v1/auth') },
       }))
@@ -21,7 +33,7 @@ export class ProxyModule implements NestModule {
     // Tenant Service
     consumer
       .apply(createProxyMiddleware({
-        target: 'http://localhost:3002',
+        target: tenantTarget,
         changeOrigin: true,
         on: { error: this.handleError('/api/v1/tenants') },
       }))
@@ -31,7 +43,7 @@ export class ProxyModule implements NestModule {
     // User Service
     consumer
       .apply(createProxyMiddleware({
-        target: 'http://localhost:3003',
+        target: userTarget,
         changeOrigin: true,
         on: { error: this.handleError('/api/v1/users') },
       }))
@@ -41,7 +53,7 @@ export class ProxyModule implements NestModule {
     // Exam Service
     consumer
       .apply(createProxyMiddleware({
-        target: 'http://localhost:3004',
+        target: examTarget,
         changeOrigin: true,
         on: { error: this.handleError('/api/v1/exams') },
       }))
@@ -51,7 +63,7 @@ export class ProxyModule implements NestModule {
     // Code Execution (also exam service)
     consumer
       .apply(createProxyMiddleware({
-        target: 'http://localhost:3004',
+        target: examTarget,
         changeOrigin: true,
         on: { error: this.handleError('/api/v1/code-execution') },
       }))
@@ -61,7 +73,7 @@ export class ProxyModule implements NestModule {
     // Question Bank Service
     consumer
       .apply(createProxyMiddleware({
-        target: 'http://localhost:3005',
+        target: questionTarget,
         changeOrigin: true,
         on: { error: this.handleError('/api/v1/questions') },
       }))
