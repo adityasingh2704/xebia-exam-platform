@@ -30,8 +30,9 @@ export function useProctoring({
     const effectiveId = assignmentId || examId;
     if (!enableProctoring || !effectiveId) return;
 
-    // Connect to WebSocket server running on backend port 3004
-    const socket = io('http://localhost:3004');
+    const wsUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3004')
+      .replace(/\/api\/v1\/?$/, '');
+    const socket = io(wsUrl);
     socketRef.current = socket;
 
     socket.on('connect', () => {

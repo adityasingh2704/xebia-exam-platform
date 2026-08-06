@@ -1,11 +1,12 @@
 import axios from 'axios';
 
-// Each service called directly — bypasses the broken API gateway proxy
-const AUTH_URL   = 'http://localhost:3001/api/v1';
-const TENANT_URL = 'http://localhost:3002/api/v1';
-const USER_URL   = 'http://localhost:3003/api/v1';
-const EXAM_URL   = 'http://localhost:3004/api/v1';
-const QUESTION_URL = 'http://localhost:3005/api/v1';
+const BASE_API_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api/v1').replace(/\/$/, '');
+
+const AUTH_URL     = BASE_API_URL;
+const TENANT_URL   = BASE_API_URL;
+const USER_URL     = BASE_API_URL;
+const EXAM_URL     = BASE_API_URL;
+const QUESTION_URL = BASE_API_URL;
 
 // Helper to attach auth token to any axios instance
 const attachToken = (config: any) => {
