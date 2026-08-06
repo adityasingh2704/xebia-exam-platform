@@ -49,63 +49,48 @@ async function bootstrap() {
     }
   };
 
-  // Explicit pathRewrite guarantees exact full API routes (/api/v1/...) are delivered to target services
+  // Mount proxies directly on Express using pathFilter without Express path-stripping
   expressApp.use(
-    '/api/v1/auth',
     createProxyMiddleware({
       target: authTarget,
       changeOrigin: true,
-      pathRewrite: { '^/': '/api/v1/auth/' },
+      pathFilter: (path) => path.startsWith('/api/v1/auth'),
       on: { error: handleError('Auth Service') },
     }),
   );
 
   expressApp.use(
-    '/api/v1/tenants',
     createProxyMiddleware({
       target: tenantTarget,
       changeOrigin: true,
-      pathRewrite: { '^/': '/api/v1/tenants/' },
+      pathFilter: (path) => path.startsWith('/api/v1/tenants'),
       on: { error: handleError('Tenant Service') },
     }),
   );
 
   expressApp.use(
-    '/api/v1/users',
     createProxyMiddleware({
       target: userTarget,
       changeOrigin: true,
-      pathRewrite: { '^/': '/api/v1/users/' },
+      pathFilter: (path) => path.startsWith('/api/v1/users'),
       on: { error: handleError('User Service') },
     }),
   );
 
   expressApp.use(
-    '/api/v1/exams',
     createProxyMiddleware({
       target: examTarget,
       changeOrigin: true,
-      pathRewrite: { '^/': '/api/v1/exams/' },
+      pathFilter: (path) => path.startsWith('/api/v1/exams') || path.startsWith('/api/v1/code-execution'),
       on: { error: handleError('Exam Service') },
     }),
   );
 
   expressApp.use(
-    '/api/v1/code-execution',
-    createProxyMiddleware({
-      target: examTarget,
-      changeOrigin: true,
-      pathRewrite: { '^/': '/api/v1/code-execution/' },
-      on: { error: handleError('Code Execution Service') },
-    }),
-  );
-
-  expressApp.use(
-    '/api/v1/questions',
     createProxyMiddleware({
       target: questionTarget,
       changeOrigin: true,
-      pathRewrite: { '^/': '/api/v1/questions/' },
+      pathFilter: (path) => path.startsWith('/api/v1/questions'),
       on: { error: handleError('Question Bank Service') },
     }),
   );

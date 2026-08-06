@@ -7,7 +7,7 @@ import { TenantService } from './tenant.service';
 import { CreateTenantDto, UpdateTenantDto, UpdateBrandingDto, UpdateSettingsDto } from './dto';
 
 @ApiTags('tenants')
-@Controller('tenants')
+@Controller(['tenants', 'api/v1/tenants'])
 @ApiBearerAuth()
 export class TenantController {
   constructor(private readonly tenantService: TenantService) {}

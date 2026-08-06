@@ -7,7 +7,7 @@ import { QuestionService } from './question.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('questions')
-@Controller('questions')
+@Controller(['questions', 'api/v1/questions'])
 @ApiBearerAuth()
 export class QuestionController {
   constructor(private readonly questionService: QuestionService) {}

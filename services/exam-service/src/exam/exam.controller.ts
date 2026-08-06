@@ -6,7 +6,7 @@ import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { ExamService } from './exam.service';
 
 @ApiTags('exams')
-@Controller('exams')
+@Controller(['exams', 'api/v1/exams'])
 @ApiBearerAuth()
 export class ExamController {
   constructor(private readonly examService: ExamService) {}
