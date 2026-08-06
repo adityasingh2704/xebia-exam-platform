@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "nest start --watch",
-    "build": "prisma generate && nest build",
+    "build": "npx prisma generate && npx nest build",
     "start": "node dist/main.js",
     "test": "jest",
     "typecheck": "tsc --noEmit",
@@ -13,23 +13,23 @@
     "prisma:push": "prisma db push"
   },
   "dependencies": {
+    "@nestjs/cli": "^10.4.0",
     "@nestjs/common": "^10.4.0",
+    "@nestjs/config": "^3.3.0",
     "@nestjs/core": "^10.4.0",
     "@nestjs/platform-express": "^10.4.0",
     "@nestjs/swagger": "^7.4.0",
-    "@nestjs/config": "^3.3.0",
-    "@prisma/client": "^6.2.0",
+    "@prisma/client": "^6.19.3",
     "@xe-recruiters/shared-types": "*",
     "@xe-recruiters/shared-utils": "*",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
+    "prisma": "^6.2.0",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "typescript": "^5.7.0"
   },
   "devDependencies": {
-    "@nestjs/cli": "^10.4.0",
-    "@types/node": "^22.0.0",
-    "prisma": "^6.2.0",
-    "typescript": "^5.7.0"
+    "@types/node": "^22.0.0"
   }
 }
