@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/stores/authStore';
 import { useTheme } from '@/components/theme/ThemeProvider';
@@ -15,6 +15,22 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [tenantSlug, setTenantSlug] = useState('');
   const [showTenantField, setShowTenantField] = useState(false);
+
+  useEffect(() => {
+    // Pre-warm backend microservices silently when user opens login page
+    const prewarm = async () => {
+      try {
+        const gatewayUrl = (process.env.NEXT_PUBLIC_API_URL || 'https://xe-api-gateway.onrender.com/api/v1')
+          .replace(/\/$/, '')
+          .replace(/\/api\/v1\/?$/, '');
+        fetch(`${gatewayUrl}/health`).catch(() => {});
+        fetch(`https://xe-auth-service.onrender.com/api/v1/health`).catch(() => {});
+      } catch {
+        // ignore
+      }
+    };
+    prewarm();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

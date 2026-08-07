@@ -113,6 +113,15 @@ async function bootstrap() {
   const port = process.env.PORT || process.env.API_GATEWAY_PORT || 3006;
   await app.listen(port);
   console.log(`🚀 API Gateway running on port ${port}`);
+
+  // Background Keep-Alive pinger every 5 minutes to prevent Render free tier spin-down
+  const targets = [authTarget, tenantTarget, userTarget, examTarget, questionTarget];
+  setInterval(() => {
+    targets.forEach((t) => {
+      const url = `${t.replace(/\/$/, '')}/api/v1/health`;
+      fetch(url).catch(() => {});
+    });
+  }, 300000); // 5 minutes
 }
 
 bootstrap();
