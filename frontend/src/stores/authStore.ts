@@ -49,7 +49,18 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         error: null,
       });
     } catch (err: any) {
-      const message = err.response?.data?.error?.message || err.response?.data?.message || 'Login failed. Please check credentials.';
+      let message = err.response?.data?.error?.message || err.response?.data?.message;
+      if (!message) {
+        if (err.code === 'ECONNABORTED' || err.message?.includes('timeout')) {
+          message = 'Server cold-start timeout. Please wait 5 seconds and click Login again.';
+        } else if (err.response?.status === 502 || err.response?.status === 503 || err.response?.status === 504) {
+          message = 'Server is waking up from free tier sleep mode. Please try again in 5 seconds.';
+        } else if (!err.response) {
+          message = 'Network error. Please check your connection or retry in a few seconds.';
+        } else {
+          message = 'Login failed. Please check credentials.';
+        }
+      }
       set({
         user: null,
         isAuthenticated: false,

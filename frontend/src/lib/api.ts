@@ -26,7 +26,7 @@ const attachToken = (config: any) => {
 
 // Generic factory for a service axios instance
 function makeClient(baseURL: string) {
-  const client = axios.create({ baseURL, timeout: 30000, headers: { 'Content-Type': 'application/json' } });
+  const client = axios.create({ baseURL, timeout: 60000, headers: { 'Content-Type': 'application/json' } });
   client.interceptors.request.use(attachToken, (e) => Promise.reject(e));
   return client;
 }

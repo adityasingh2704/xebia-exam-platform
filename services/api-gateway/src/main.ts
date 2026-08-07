@@ -43,17 +43,23 @@ async function bootstrap() {
     if (!res.headersSent) {
       res.status(502).json({
         success: false,
-        error: { code: 'SERVICE_UNAVAILABLE', message: `${serviceName} is currently unavailable` },
+        error: { code: 'SERVICE_UNAVAILABLE', message: `${serviceName} is currently starting up (free tier cold-start). Please retry in a few seconds.` },
         timestamp: new Date().toISOString(),
       });
     }
   };
 
-  // Dual-path proxy rules: supports both /api/v1/... and short /... routes
+  // Dual-path proxy rules: supports both /api/v1/... and short /... routes with 60s cold-start timeout
+  const commonProxyOptions = {
+    changeOrigin: true,
+    timeout: 60000,
+    proxyTimeout: 60000,
+  };
+
   expressApp.use(
     createProxyMiddleware({
+      ...commonProxyOptions,
       target: authTarget,
-      changeOrigin: true,
       pathFilter: (path) => path.startsWith('/api/v1/auth') || path.startsWith('/auth'),
       pathRewrite: (path) => (path.startsWith('/api/v1') ? path : `/api/v1${path}`),
       on: { error: handleError('Auth Service') },
@@ -62,8 +68,8 @@ async function bootstrap() {
 
   expressApp.use(
     createProxyMiddleware({
+      ...commonProxyOptions,
       target: tenantTarget,
-      changeOrigin: true,
       pathFilter: (path) => path.startsWith('/api/v1/tenants') || path.startsWith('/tenants'),
       pathRewrite: (path) => (path.startsWith('/api/v1') ? path : `/api/v1${path}`),
       on: { error: handleError('Tenant Service') },
@@ -72,8 +78,8 @@ async function bootstrap() {
 
   expressApp.use(
     createProxyMiddleware({
+      ...commonProxyOptions,
       target: userTarget,
-      changeOrigin: true,
       pathFilter: (path) => path.startsWith('/api/v1/users') || path.startsWith('/users'),
       pathRewrite: (path) => (path.startsWith('/api/v1') ? path : `/api/v1${path}`),
       on: { error: handleError('User Service') },
@@ -82,8 +88,8 @@ async function bootstrap() {
 
   expressApp.use(
     createProxyMiddleware({
+      ...commonProxyOptions,
       target: examTarget,
-      changeOrigin: true,
       pathFilter: (path) =>
         path.startsWith('/api/v1/exams') ||
         path.startsWith('/exams') ||
@@ -96,8 +102,8 @@ async function bootstrap() {
 
   expressApp.use(
     createProxyMiddleware({
+      ...commonProxyOptions,
       target: questionTarget,
-      changeOrigin: true,
       pathFilter: (path) => path.startsWith('/api/v1/questions') || path.startsWith('/questions'),
       pathRewrite: (path) => (path.startsWith('/api/v1') ? path : `/api/v1${path}`),
       on: { error: handleError('Question Bank Service') },
