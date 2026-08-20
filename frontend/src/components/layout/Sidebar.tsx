@@ -73,11 +73,12 @@ export default function Sidebar() {
   const { user, logout } = useAuthStore();
   const { isOpen, close } = useSidebarStore();
 
-  const userRole = user?.role || 'TEACHER';
-  const userName = user ? `${user.firstName} ${user.lastName}`.trim() : 'Guest User';
-  const userEmail = user?.email || '';
-  const userInitials = user
-    ? `${user.firstName?.[0] || ''}${user.lastName?.[0] || ''}`.toUpperCase() || 'U'
+  const effectiveUser = (user as any)?.user || user;
+  const userRole = effectiveUser?.role || 'TEACHER';
+  const userName = effectiveUser ? `${effectiveUser.firstName || ''} ${effectiveUser.lastName || ''}`.trim() || 'User' : 'Guest User';
+  const userEmail = effectiveUser?.email || '';
+  const userInitials = effectiveUser
+    ? `${effectiveUser.firstName?.[0] || ''}${effectiveUser.lastName?.[0] || ''}`.toUpperCase() || 'U'
     : 'GU';
 
   const isActive = (href: string) => {

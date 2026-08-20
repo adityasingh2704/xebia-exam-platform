@@ -56,7 +56,8 @@ export default function QuestionBankPage() {
   const [limit] = useState(20);
   
   const { user } = useAuthStore();
-  const tenantId = user?.tenantId;
+  const effectiveUser = (user as any)?.user || user;
+  const tenantId = effectiveUser?.tenantId;
 
   // Delete confirmation modal
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -66,8 +67,11 @@ export default function QuestionBankPage() {
     setIsLoading(true);
     setError(null);
     try {
-      const activeTenantId = tenantId || user?.tenantId;
-      const params: Record<string, unknown> = { page, limit, tenantId: activeTenantId };
+      const activeTenantId = tenantId || effectiveUser?.tenantId;
+      const params: Record<string, unknown> = { page, limit };
+      if (activeTenantId && activeTenantId !== 'undefined' && activeTenantId !== 'null' && activeTenantId !== 'all') {
+        params.tenantId = activeTenantId;
+      }
       if (searchQuery) params.search = searchQuery;
       if (selectedType !== 'All') params.type = selectedType;
       if (selectedDifficulty !== 'All') params.difficulty = selectedDifficulty;
@@ -94,6 +98,29 @@ export default function QuestionBankPage() {
       }
 
       total = resObj?.data?.meta?.total ?? resObj?.meta?.total ?? list.length;
+
+      // If tenant returned 0 questions and tenantId was specified, fallback query without tenant filter
+      if (list.length === 0 && params.tenantId) {
+        try {
+          const fallbackRes = await questionApi.list({ page, limit, ...(searchQuery && { search: searchQuery }) });
+          const fbObj = fallbackRes.data;
+          let fbList: any[] = [];
+          if (Array.isArray(fbObj)) fbList = fbObj;
+          else if (Array.isArray(fbObj?.data?.data)) fbList = fbObj.data.data;
+          else if (Array.isArray(fbObj?.data?.items)) fbList = fbObj.data.items;
+          else if (Array.isArray(fbObj?.data?.questions)) fbList = fbObj.data.questions;
+          else if (Array.isArray(fbObj?.data)) fbList = fbObj.data;
+          else if (Array.isArray(fbObj?.items)) fbList = fbObj.items;
+          else if (Array.isArray(fbObj?.questions)) fbList = fbObj.questions;
+          if (fbList.length > 0) {
+            list = fbList;
+            total = fbObj?.data?.meta?.total ?? fbObj?.meta?.total ?? fbList.length;
+          }
+        } catch {
+          // ignore fallback
+        }
+      }
+
       setQuestions(list);
       setTotalCount(total);
     } catch (err: any) {
@@ -103,7 +130,7 @@ export default function QuestionBankPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [page, limit, searchQuery, selectedType, selectedDifficulty, tenantId]);
+  }, [page, limit, tenantId, effectiveUser?.tenantId, searchQuery, selectedType, selectedDifficulty]);
 
   useEffect(() => {
     fetchQuestions();

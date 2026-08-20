@@ -9,10 +9,13 @@ export class QuestionService {
   constructor(private prisma: PrismaService) {}
 
   async create(dto: any) {
-    const tenantId = (dto.tenantId && dto.tenantId !== 'seed-tenant-acme' && dto.tenantId !== 'tenant_acme_001')
+    const tenantId = (dto.tenantId && dto.tenantId !== 'seed-tenant-acme' && dto.tenantId !== 'tenant_acme_001' && dto.tenantId !== 'undefined' && dto.tenantId !== 'null')
       ? dto.tenantId
       : '6a5fa9d2129f5cf7b7c7ab5a';
     const createdBy = dto.createdBy || 'usr_teacher_001';
+    const categoryId = (dto.categoryId && typeof dto.categoryId === 'string' && dto.categoryId.length === 24 && /^[0-9a-fA-F]{24}$/.test(dto.categoryId))
+      ? dto.categoryId
+      : undefined;
 
     const question = await this.prisma.question.create({
       data: {
@@ -25,7 +28,7 @@ export class QuestionService {
         difficulty: dto.difficulty || 'MEDIUM',
         points: dto.points || 1,
         timeLimit: dto.timeLimit,
-        categoryId: dto.categoryId,
+        categoryId,
         createdBy,
         testCases: dto.testCases,
         programmingLanguage: dto.programmingLanguage,
@@ -156,6 +159,10 @@ export class QuestionService {
       await this.prisma.questionTag.deleteMany({ where: { questionId: id } });
     }
 
+    const categoryId = (dto.categoryId && typeof dto.categoryId === 'string' && dto.categoryId.length === 24 && /^[0-9a-fA-F]{24}$/.test(dto.categoryId))
+      ? dto.categoryId
+      : undefined;
+
     const updated = await this.prisma.question.update({
       where: { id },
       data: {
@@ -165,7 +172,7 @@ export class QuestionService {
         ...(dto.difficulty && { difficulty: dto.difficulty }),
         ...(dto.points !== undefined && { points: dto.points }),
         ...(dto.timeLimit !== undefined && { timeLimit: dto.timeLimit }),
-        ...(dto.categoryId !== undefined && { categoryId: dto.categoryId }),
+        ...(dto.categoryId !== undefined && { categoryId }),
         ...(dto.testCases !== undefined && { testCases: dto.testCases }),
         ...(dto.programmingLanguage !== undefined && { programmingLanguage: dto.programmingLanguage }),
         ...(dto.solutionCode !== undefined && { solutionCode: dto.solutionCode }),

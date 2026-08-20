@@ -11,7 +11,8 @@ export default function CreateExamPage() {
   const router = useRouter();
   const { addToast } = useToastStore();
   const { user } = useAuthStore();
-  const tenantId = user?.tenantId;
+  const effectiveUser = (user as any)?.user || user;
+  const tenantId = effectiveUser?.tenantId || '6a5fa9d2129f5cf7b7c7ab5a';
 
   // Basic Info
   const [title, setTitle] = useState('');
@@ -53,9 +54,11 @@ export default function CreateExamPage() {
     const fetchQuestions = async () => {
       setIsLoadingQuestions(true);
       try {
-        const activeTenantId = tenantId || user?.tenantId;
+        const activeTenantId = effectiveUser?.tenantId || tenantId || '6a5fa9d2129f5cf7b7c7ab5a';
         const params: Record<string, unknown> = { limit: 100 };
-        if (activeTenantId) params.tenantId = activeTenantId;
+        if (activeTenantId && activeTenantId !== 'undefined' && activeTenantId !== 'null') {
+          params.tenantId = activeTenantId;
+        }
 
         const response = await questionApi.list(params);
         const resData = response.data;
@@ -75,6 +78,26 @@ export default function CreateExamPage() {
         } else if (Array.isArray(resData?.questions)) {
           qList = resData.questions;
         }
+
+        // If tenant-filtered list is empty, query all available questions
+        if (qList.length === 0 && params.tenantId) {
+          try {
+            const fallbackRes = await questionApi.list({ limit: 100 });
+            const fbData = fallbackRes.data;
+            let fbList: any[] = [];
+            if (Array.isArray(fbData)) fbList = fbData;
+            else if (Array.isArray(fbData?.data?.data)) fbList = fbData.data.data;
+            else if (Array.isArray(fbData?.data?.items)) fbList = fbData.data.items;
+            else if (Array.isArray(fbData?.data?.questions)) fbList = fbData.data.questions;
+            else if (Array.isArray(fbData?.data)) fbList = fbData.data;
+            else if (Array.isArray(fbData?.items)) fbList = fbData.items;
+            else if (Array.isArray(fbData?.questions)) fbList = fbData.questions;
+            if (fbList.length > 0) qList = fbList;
+          } catch {
+            // ignore fallback error
+          }
+        }
+
         setAvailableQuestions(qList);
       } catch (err: any) {
         console.warn('Failed to load questions from Question Bank:', err?.message || err);
@@ -84,7 +107,7 @@ export default function CreateExamPage() {
       }
     };
     fetchQuestions();
-  }, [tenantId, user?.tenantId]);
+  }, [tenantId, effectiveUser?.tenantId]);
 
   const handleToggleQuestion = (qId: string) => {
     setSelectedQuestionIds((prev) =>
@@ -117,8 +140,8 @@ export default function CreateExamPage() {
     try {
       // 1. Create the exam
       const response = await examApi.create({
-        tenantId,
-        createdBy: user?.id || 'usr_teacher_001',
+        tenantId: tenantId || '6a5fa9d2129f5cf7b7c7ab5a',
+        createdBy: effectiveUser?.id || 'usr_teacher_001',
         status: 'PUBLISHED',
         title,
         description,

@@ -11,7 +11,10 @@ import CandidateDashboard from './_components/CandidateDashboard';
 
 export default function DashboardPage() {
   const { user } = useAuthStore();
-  const currentRole = user?.role || 'TEACHER';
+  const effectiveUser = (user as any)?.user || user;
+  const currentRole = effectiveUser?.role || 'TEACHER';
+  const tenantId = effectiveUser?.tenantId;
+  const userId = effectiveUser?.id;
 
   const [stats, setStats] = useState<any>({ totalExams: 0, totalQuestions: 0, totalUsers: 0, totalTenants: 0 });
   const [recentExams, setRecentExams] = useState<any[]>([]);
@@ -24,13 +27,13 @@ export default function DashboardPage() {
         const [examsRes, questionsRes, usersRes, incidentsRes, assignmentsRes] = await Promise.allSettled([
           examApi.list({ 
             limit: 100, 
-            tenantId: user?.tenantId,
-            ...(currentRole === 'CANDIDATE' && { candidateId: user?.id })
+            tenantId,
+            ...(currentRole === 'CANDIDATE' && { candidateId: userId })
           }),
-          questionApi.list({ limit: 1000, tenantId: user?.tenantId }),
-          userApi.list({ limit: 1000, tenantId: user?.tenantId }),
+          questionApi.list({ limit: 1000, tenantId }),
+          userApi.list({ limit: 1000, tenantId }),
           examApi.getIncidents('all'),
-          examApi.listAssignments({ tenantId: user?.tenantId }),
+          examApi.listAssignments({ tenantId }),
         ]);
 
         let examData: any[] = [];
@@ -122,7 +125,7 @@ export default function DashboardPage() {
       <div>
         <h1 className="text-headline-xl font-bold text-text-primary">Dashboard</h1>
         <p className="text-body-sm text-text-muted mt-1">
-          Welcome back{user ? `, ${user.firstName}` : ''}! Here&apos;s an overview of your workspace.
+          Welcome back{effectiveUser?.firstName ? `, ${effectiveUser.firstName}` : ''}! Here&apos;s an overview of your workspace.
         </p>
       </div>
 
@@ -134,7 +137,7 @@ export default function DashboardPage() {
         <TenantAdminDashboard stats={stats} recentExams={recentExams} isLoading={isLoading} formatDate={formatDate} />
       )}
       
-      {currentRole === 'TEACHER' && (
+      {(currentRole === 'TEACHER' || currentRole === 'PROCTOR') && (
         <TeacherDashboard stats={stats} recentExams={recentExams} isLoading={isLoading} formatDate={formatDate} />
       )}
       

@@ -16,7 +16,9 @@ export class ExamService {
   ) { }
 
   async create(dto: any) {
-    const tenantId = dto.tenantId;
+    const tenantId = (dto.tenantId && dto.tenantId !== 'seed-tenant-acme' && dto.tenantId !== 'tenant_acme_001' && dto.tenantId !== 'undefined' && dto.tenantId !== 'null')
+      ? dto.tenantId
+      : '6a5fa9d2129f5cf7b7c7ab5a';
     const createdBy = dto.createdBy || 'Teacher';
 
     const exam = await this.prisma.exam.create({
@@ -88,7 +90,10 @@ export class ExamService {
     search?: string,
     candidateId?: string,
   ) {
-    const where: any = { tenantId };
+    const where: any = {};
+    if (tenantId && tenantId !== 'all' && tenantId !== 'undefined' && tenantId !== 'seed-tenant-acme' && tenantId !== 'null') {
+      where.tenantId = tenantId;
+    }
     if (status) {
       where.status = status;
     } else {

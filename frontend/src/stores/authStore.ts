@@ -137,7 +137,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
 
     try {
-      const parsedUser = JSON.parse(savedUser);
+      let parsedUser = JSON.parse(savedUser);
+      // If user was previously saved wrapped in { valid: true, user: {...} }, unwrap it
+      if (parsedUser && parsedUser.user && typeof parsedUser.user === 'object' && parsedUser.user.role) {
+        parsedUser = { ...parsedUser.user, ...parsedUser };
+        delete (parsedUser as any).user;
+        delete (parsedUser as any).valid;
+      }
+
       set({
         user: parsedUser,
         isAuthenticated: true,
@@ -149,7 +156,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         .verifyToken()
         .then((res) => {
           if (res.data?.data) {
-            const updatedUser = res.data.data;
+            const raw = res.data.data;
+            const verifiedPayload = raw.user && typeof raw.user === 'object' ? raw.user : raw;
+            const updatedUser = {
+              ...parsedUser,
+              ...verifiedPayload,
+            };
             localStorage.setItem('xe_user', JSON.stringify(updatedUser));
             set({ user: updatedUser, isAuthenticated: true });
           }

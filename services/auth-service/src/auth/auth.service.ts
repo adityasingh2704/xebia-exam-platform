@@ -573,6 +573,22 @@ export class AuthService {
 
     try {
       const decoded = verifyToken<JwtPayload>(token, this.jwtSecret);
+      let firstName: string | undefined;
+      let lastName: string | undefined;
+      try {
+        const userPrisma = this.getUserPrismaClient();
+        const u = await userPrisma.user.findUnique({
+          where: { id: decoded.sub },
+          select: { firstName: true, lastName: true },
+        });
+        if (u) {
+          firstName = u.firstName;
+          lastName = u.lastName;
+        }
+      } catch {
+        // fallback to decoded
+      }
+
       return successResponse({
         valid: true,
         user: {
@@ -580,6 +596,8 @@ export class AuthService {
           email: decoded.email,
           tenantId: decoded.tenantId,
           role: decoded.role,
+          ...(firstName && { firstName }),
+          ...(lastName && { lastName }),
         },
       });
     } catch {

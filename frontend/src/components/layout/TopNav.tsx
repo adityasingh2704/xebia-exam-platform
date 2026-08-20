@@ -33,8 +33,9 @@ export default function TopNav() {
   const [showAllModal, setShowAllModal] = useState(false);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
 
-  const roleLabel = user?.role?.replace(/_/g, ' ') || 'User';
-  const isCandidate = user?.role === 'CANDIDATE';
+  const effectiveUser = (user as any)?.user || user;
+  const roleLabel = effectiveUser?.role?.replace(/_/g, ' ') || 'User';
+  const isCandidate = effectiveUser?.role === 'CANDIDATE';
 
   // Get page title from pathname
   const getPageTitle = () => {

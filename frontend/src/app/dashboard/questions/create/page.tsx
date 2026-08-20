@@ -38,7 +38,8 @@ export default function CreateQuestionPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const { user } = useAuthStore();
-  const tenantId = user?.tenantId;
+  const effectiveUser = (user as any)?.user || user;
+  const tenantId = effectiveUser?.tenantId || '6a5fa9d2129f5cf7b7c7ab5a';
 
   const handleOptionChange = (idx: number, field: 'text' | 'isCorrect', val: any) => {
     setOptions((prev) =>
@@ -76,15 +77,20 @@ export default function CreateQuestionPage() {
         title,
         body,
         difficulty,
-        points,
+        points: Number(points) || 1,
         explanation,
-        tenantId,
-        createdBy: user?.id || 'usr_teacher_001',
+        tenantId: tenantId || '6a5fa9d2129f5cf7b7c7ab5a',
+        createdBy: effectiveUser?.id || 'usr_teacher_001',
         tags: parsedTags,
       };
 
       if (type === 'MCQ' || type === 'MRQ') {
-        payload.options = options;
+        payload.options = options.filter(o => o.text.trim().length > 0);
+      } else if (type === 'TRUE_FALSE') {
+        payload.options = [
+          { text: 'True', isCorrect: options[0]?.isCorrect ?? true },
+          { text: 'False', isCorrect: options[1]?.isCorrect ?? false },
+        ];
       } else if (type === 'PROGRAMMING') {
         payload.programmingLanguage = programmingLanguage;
         payload.templateCode = templateCode;
